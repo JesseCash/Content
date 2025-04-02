@@ -1,0 +1,120 @@
+﻿@page
+@model Rolsa_Technologies.Pages.EV_LocatorModel
+@{
+    ViewData["Title"] = "EV Locator";
+}
+
+<div class="container">
+    <!-- Heading -->
+    <h1>Find a charging point near you</h1>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Enter Postcode, Town or City">
+        <button onclick="searchLocation()">Search</button>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map" style="height: 600px; width: 100%;"></div>
+
+    <!-- Filter Button -->
+    <button id="filterBtn" onclick="toggleFilter()">Filter</button>
+
+    <!-- Filter Panel -->
+    <div id="filterPanel" class="filter-panel" style="display:none;">
+        <h2>Filters</h2>
+        <label>
+            <input type="checkbox" id="appPayment" /> App Payment Available
+        </label>
+        <label>
+            <input type="checkbox" id="spacesAvailable" /> Spaces Available
+        </label>
+        <button onclick="applyFilter()">Apply</button>
+        <button onclick="clearFilter()">Clear</button>
+    </div>
+
+    <!-- Search Results -->
+    <div id="searchResults" style="display:none; padding: 20px; background-color: rgba(0, 0, 0, 0.7); color: white;">
+        <h2>Search Results</h2>
+        <ul id="resultList">
+            <!-- Results will appear here -->
+        </ul>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([53.4084, -2.9916], 10); // Default to Liverpool area
+
+        // Add a tile layer (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Function to toggle the filter panel
+        function toggleFilter() {
+            var filterPanel = document.getElementById("filterPanel");
+            if (filterPanel.style.display === "none") {
+                filterPanel.style.display = "block";
+            } else {
+                filterPanel.style.display = "none";
+            }
+        }
+
+        // Function to apply filter
+        function applyFilter() {
+            // Get filter values
+            var appPayment = document.getElementById("appPayment").checked;
+            var spacesAvailable = document.getElementById("spacesAvailable").checked;
+
+            // Apply filter logic here (could involve AJAX request to server for filtered results)
+            console.log("Applying filters: ", appPayment, spacesAvailable);
+            // For now, show the search results
+            document.getElementById("searchResults").style.display = "block";
+        }
+
+        // Function to clear filter
+        function clearFilter() {
+            document.getElementById("appPayment").checked = false;
+            document.getElementById("spacesAvailable").checked = false;
+            // Reset filters and show all results
+            console.log("Clearing filters");
+        }
+
+        // Function to handle the search
+        function searchLocation() {
+            var searchInput = document.getElementById("searchInput").value;
+            // Fetch results from the database based on the search input (use your back-end to get actual data)
+            console.log("Searching for: ", searchInput);
+            
+            // Example data (replace with actual server-side fetch)
+            var results = [
+                { name: 'Warrington Central Station', distance: '2 km' },
+                { name: 'Liverpool One Car Park', distance: '10 km' },
+                { name: 'Manchester Piccadilly', distance: '45 km' }
+            ];
+
+            // Populate search results
+            var resultList = document.getElementById("resultList");
+            resultList.innerHTML = '';  // Clear previous results
+            results.forEach(function(result) {
+                var li = document.createElement("li");
+                li.textContent = result.name + " - " + result.distance;
+                resultList.appendChild(li);
+            });
+
+            // Show results section
+            document.getElementById("searchResults").style.display = "block";
+        }
+
+        // Add a marker to the map for each charging station
+        function addStationMarker(lat, lng, stationName) {
+            L.marker([lat, lng])
+                .addTo(map)
+                .bindPopup(stationName)
+                .openPopup();
+        }
+    </script>
+}
